@@ -1,0 +1,875 @@
+﻿<UserControl
+    x:Class="TaiwanStockTrading.ListStock"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:TaiwanStockTrading"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance local:StockListViewModel}"
+    d:DesignHeight="470"
+    mc:Ignorable="d">
+    <Grid x:Name="ListGrid">
+        <StackPanel Margin="16">
+
+            <ComboBox
+                Name="TradeComboBox"
+                Width="200"
+                Margin="0,0,0,16"
+                Padding="8"
+                HorizontalAlignment="Left">
+                <ComboBoxItem Content="當沖" IsSelected="True" />
+                <ComboBoxItem Content="隔日沖" />
+                <ComboBoxItem Content="證券庫存" />
+                <ComboBoxItem Content="選股池" />
+                <ComboBoxItem Content="委託回報" />
+                <ComboBoxItem Content="成交回報" />
+            </ComboBox>
+
+            <materialDesign:Card x:Name="Stocks">
+
+                <ListView Height="270" ItemsSource="{Binding Stocks}">
+
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Margin" Value="-8,0,0,0" />
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDown" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="70" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="編號" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="代碼" />
+                            <GridViewColumn
+                                Width="80"
+                                DisplayMemberBinding="{Binding Name}"
+                                Header="名稱" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Close}" Header="成交" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AmpDiff}" Header="漲跌" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AmpPert}" Header="幅度" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Single}" Header="單量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Volume}" Header="總量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding PreClose}" Header="昨收" />
+                            <GridViewColumn DisplayMemberBinding="{Binding CurUpperBid}" Header="漲委" />
+                            <GridViewColumn DisplayMemberBinding="{Binding MaxUpperBid}" Header="大委" />
+                            <GridViewColumn
+                                Width="90"
+                                DisplayMemberBinding="{Binding StatusDesc}"
+                                Header="狀態" />
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            HorizontalAlignment="Center"
+                                            Click="DetailBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Eye" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            Click="EditBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Edit" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            Click="DeleteBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Remove" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </materialDesign:Card>
+
+            <materialDesign:Card x:Name="PostStocks" Visibility="Collapsed">
+
+                <ListView Height="270" ItemsSource="{Binding PostStocks}">
+
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Margin" Value="-8,0,0,0" />
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDownOnPost" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="60" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="編號" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="代碼" />
+                            <GridViewColumn
+                                Width="80"
+                                DisplayMemberBinding="{Binding Name}"
+                                Header="名稱" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Open}" Header="開盤" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Close}" Header="成交" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AmpDiff}" Header="漲跌" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AmpPert}" Header="幅度" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Single}" Header="單量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Volume}" Header="總量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding PreClose}" Header="昨收" />
+                            <GridViewColumn DisplayMemberBinding="{Binding CommSell}" Header="委賣" />
+                            <GridViewColumn DisplayMemberBinding="{Binding RepoLeft}" Header="昨餘" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AvgSell}" Header="成均" />
+                            <GridViewColumn
+                                Width="90"
+                                DisplayMemberBinding="{Binding StatusDesc}"
+                                Header="狀態" />
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            HorizontalAlignment="Center"
+                                            Click="DetailBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Eye" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            Click="EditBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Edit" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            Click="DeleteBtn_Click"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Remove" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </materialDesign:Card>
+
+            <materialDesign:Card x:Name="RepoSummary" Visibility="Collapsed">
+
+                <ListView Height="500" ItemsSource="{Binding RepoSummary}">
+
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Margin" Value="-8,0,0,0" />
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDownOnPost" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="75" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="代碼" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="名稱" />
+                            <GridViewColumn DisplayMemberBinding="{Binding PastLeft}" Header="昨餘" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AddComm}" Header="今新委" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AddDeal}" Header="今新成" />
+                            <GridViewColumn DisplayMemberBinding="{Binding SellComm}" Header="今委出" />
+                            <GridViewColumn DisplayMemberBinding="{Binding SellDeal}" Header="今成出" />
+                            <GridViewColumn DisplayMemberBinding="{Binding DtQty}" Header="現股當沖" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Asset}" Header="庫存市值" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AssetReal}" Header="帳收" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Netpl}" Header="未實損益" />
+                            <GridViewColumn DisplayMemberBinding="{Binding OavgPrice}" Header="成均" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Rlprice}" Header="即時價" />
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button
+                                            Width="28"
+                                            Height="28"
+                                            Margin="0,-4,0,-4"
+                                            HorizontalAlignment="Center"
+                                            Click="AddRepoClick"
+                                            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}">
+                                            <materialDesign:PackIcon
+                                                Width="16"
+                                                Height="16"
+                                                Kind="Add" />
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </materialDesign:Card>
+
+            <materialDesign:Card x:Name="CommSummary" Visibility="Collapsed">
+
+                <ListView Height="500" ItemsSource="{Binding CommSummary}">
+
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Margin" Value="-8,0,0,0" />
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDownOnPost" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="90" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="股票代碼" />
+                            <GridViewColumn DisplayMemberBinding="{Binding OrderID}" Header="單號" />
+                            <GridViewColumn DisplayMemberBinding="{Binding OrderTime}" Header="訂單時間" />
+                            <GridViewColumn DisplayMemberBinding="{Binding ReportTime}" Header="回報時間" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Func}" Header="操作" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Side}" Header="買賣" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Price}" Header="委價" />
+                            <GridViewColumn DisplayMemberBinding="{Binding BeforeQty}" Header="前量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding AfterQty}" Header="後量" />
+                            <GridViewColumn DisplayMemberBinding="{Binding ErrCode}" Header="錯誤代碼" />
+                            <GridViewColumn DisplayMemberBinding="{Binding ErrMsg}" Header="錯誤訊息" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </materialDesign:Card>
+
+            <materialDesign:Card x:Name="DealSummary" Visibility="Collapsed">
+
+                <ListView Height="500" ItemsSource="{Binding DealSummary}">
+
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="40" />
+                            <Setter Property="Margin" Value="-8,0,0,0" />
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDownOnPost" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="100" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="股票代碼" />
+                            <GridViewColumn DisplayMemberBinding="{Binding OrderID}" Header="書號" />
+                            <GridViewColumn DisplayMemberBinding="{Binding MarketID}" Header="市場單號" />
+                            <GridViewColumn DisplayMemberBinding="{Binding TradeDate}" Header="交易日期" />
+                            <GridViewColumn DisplayMemberBinding="{Binding ReportTime}" Header="回報時間" />
+                            <GridViewColumn DisplayMemberBinding="{Binding OrdClass}" Header="類別" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Side}" Header="買賣" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Price}" Header="成交價" />
+                            <GridViewColumn DisplayMemberBinding="{Binding Qty}" Header="成交量" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </materialDesign:Card>
+            
+            <StackPanel x:Name="AISelectPanel" Visibility="Collapsed">
+                <StackPanel Margin="0,0,0,12" Orientation="Horizontal">
+                    <ComboBox
+                        Name="AISelectBox"
+                        Width="200"
+                        Margin="0,0,16,16"
+                        Padding="8"
+                        HorizontalAlignment="Left"
+                        DropDownClosed="AISelectBox_DropDownClosed">
+                        <ComboBoxItem Content="漲幅" IsSelected="True" />
+                        <ComboBoxItem Content="市值" />
+                        <ComboBoxItem Content="成交量" />
+                    </ComboBox>
+                    <ComboBox
+                        Name="AmpSelectBox"
+                        Width="200"
+                        Margin="0,0,16,16"
+                        Padding="8"
+                        HorizontalAlignment="Left"
+                        DropDownClosed="AmpSelectBox_DropDownClosed">
+                        <ComboBoxItem Content="10%" IsSelected="True" />
+                        <ComboBoxItem Content="9%" />
+                        <ComboBoxItem Content="8%" />
+                        <ComboBoxItem Content="7%" />
+                        <ComboBoxItem Content="6%" />
+                        <ComboBoxItem Content="5%" />
+                        <ComboBoxItem Content="4%" />
+                        <ComboBoxItem Content="3%" />
+                        <ComboBoxItem Content="2%" />
+                        <ComboBoxItem Content="1%" />
+                        <ComboBoxItem Content="0%" />
+                    </ComboBox>
+                </StackPanel>
+                <materialDesign:Card>
+                    <ListView Height="500" ItemsSource="{Binding AISelect}">
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource MaterialDesignGridViewItem}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Setter Property="Height" Value="40" />
+                                <Setter Property="Margin" Value="-8,0,0,0" />
+                                <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDown" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource MaterialDesignToolButton}" TargetType="GridViewColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="Width" Value="75" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn
+                                    Width="60"
+                                    DisplayMemberBinding="{Binding Symbol}"
+                                    Header="代碼" />
+                                <GridViewColumn
+                                    Width="70"
+                                    DisplayMemberBinding="{Binding Name}"
+                                    Header="名稱" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Open}" Header="開盤" />
+                                <GridViewColumn DisplayMemberBinding="{Binding High}" Header="最高" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Low}" Header="最低" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Close}" Header="收盤" />
+                                <GridViewColumn DisplayMemberBinding="{Binding BuyPrice}" Header="買進" />
+                                <GridViewColumn DisplayMemberBinding="{Binding SellPrice}" Header="賣出" />
+                                <GridViewColumn DisplayMemberBinding="{Binding AmpDiff}" Header="漲跌" />
+                                <GridViewColumn DisplayMemberBinding="{Binding AmpPert}" Header="幅度" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Single}" Header="單量" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Volume}" Header="總量" />
+                                <GridViewColumn DisplayMemberBinding="{Binding PreClose}" Header="昨收" />
+                                <GridViewColumn Width="40">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button
+                                                x:Name="AddOrder"
+                                                Width="28"
+                                                Height="28"
+                                                Margin="0,-4,0,-4"
+                                                HorizontalAlignment="Center"
+                                                Click="AddOrder_Click"
+                                                Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                                                <materialDesign:PackIcon
+                                                    Width="16"
+                                                    Height="16"
+                                                    Kind="ChartBoxPlusOutline" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </materialDesign:Card>
+            </StackPanel>
+
+            <materialDesign:Card x:Name="DetailView" Margin="0,16,0,0">
+                <Grid Height="240">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Border Padding="32">
+                            <StackPanel x:Name="TranDetail" />
+                        </Border>
+                    </ScrollViewer>
+                </Grid>
+            </materialDesign:Card>
+        </StackPanel>
+        <Canvas>
+            <materialDesign:PopupBox
+                Canvas.Right="16"
+                Canvas.Bottom="16"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                PlacementMode="TopAndAlignCentres"
+                Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
+                ToolTip="新增當冲、隔日沖設定"
+                ToolTipService.Placement="Right">
+                <StackPanel>
+                    <Button
+                        x:Name="AddPostSetting"
+                        Margin="0,0,0,8"
+                        Click="AddPostSetting_Click"
+                        Opacity="0.7"
+                        Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                        ToolTip="新增隔日沖">
+                        <materialDesign:PackIcon
+                            Width="20"
+                            Height="20"
+                            Kind="CalendarAccount" />
+                    </Button>
+
+                    <Button
+                        x:Name="AddStkSetting"
+                        Click="AddStkSetting_Click"
+                        Opacity="0.7"
+                        Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
+                        ToolTip="新增當沖">
+                        <materialDesign:PackIcon
+                            Width="20"
+                            Height="20"
+                            Kind="CalendarToday" />
+                    </Button>
+                </StackPanel>
+            </materialDesign:PopupBox>
+
+        </Canvas>
+
+
+        <materialDesign:DialogHost
+            x:Name="AddTrade"
+            x:FieldModifier="public"
+            DialogTheme="Inherit">
+            <materialDesign:DialogHost.DialogContent>
+                <StackPanel Width="400" Margin="0">
+                    <GroupBox
+                        x:Name="StockDesc"
+                        Margin="16"
+                        HorizontalContentAlignment="Center"
+                        materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                        BorderThickness="0"
+                        DataContext=""
+                        Header=""
+                        Style="{DynamicResource MaterialDesignGroupBox}"
+                        UseLayoutRounding="True">
+                        <StackPanel Margin="0,8,0,0">
+                            <StackPanel Height="45" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">買賣：</TextBlock>
+                                <ListBox
+                                    x:Name="TradeType"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignChoiceChipPrimaryListBox}">
+                                    <ListBoxItem Content="買進" IsSelected="True" />
+                                    <ListBoxItem Content="賣出" />
+                                </ListBox>
+                            </StackPanel>
+
+
+                            <StackPanel Height="45" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">類別：</TextBlock>
+                                <ListBox
+                                    x:Name="TradePriceFlag"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignChoiceChipPrimaryListBox}">
+                                    <ListBoxItem Content="限價" IsSelected="True" />
+                                    <ListBoxItem Content="市價" />
+                                </ListBox>
+                            </StackPanel>
+
+                            <StackPanel Height="45" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">種類：</TextBlock>
+                                <ListBox
+                                    x:Name="TradeKind"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignChoiceChipPrimaryListBox}">
+                                    <ListBoxItem Content="現股" IsSelected="True" />
+                                    <ListBoxItem Content="自資" />
+                                    <ListBoxItem Content="自券" />
+                                    <ListBoxItem Content="沖資" />
+                                    <ListBoxItem Content="沖券" />
+                                </ListBox>
+                            </StackPanel>
+
+                            <StackPanel Height="45" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">條件：</TextBlock>
+                                <ListBox
+                                    x:Name="TradeCond"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignChoiceChipPrimaryListBox}">
+                                    <ListBoxItem Content="ROD" IsSelected="True" />
+                                    <ListBoxItem Content="IOC" />
+                                    <ListBoxItem Content="FOK" />
+                                </ListBox>
+                            </StackPanel>
+
+                            <StackPanel Height="35" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">單位：</TextBlock>
+                                <TextBox
+                                    x:Name="TradeCount"
+                                    Width="70"
+                                    Margin="8,-8,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">張</TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Height="35" Orientation="Horizontal">
+                                <TextBlock Margin="8,8,8,4" VerticalAlignment="Center">價格：</TextBlock>
+                                <TextBox
+                                    x:Name="TradePrice"
+                                    Width="70"
+                                    Margin="8,-8,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+                            </StackPanel>
+                            <StackPanel
+                                x:Name="Book"
+                                Margin="0,16,0,0"
+                                Background="AliceBlue">
+                                <StackPanel
+                                    Height="25"
+                                    Margin="0,12,0,0"
+                                    Orientation="Horizontal">
+                                    <StackPanel
+                                        Width="120"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Right"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="120" VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel />
+                                <StackPanel Height="25" Orientation="Horizontal">
+                                    <StackPanel
+                                        Width="120"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Right"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="120" VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel />
+                                <StackPanel Height="25" Orientation="Horizontal">
+                                    <StackPanel
+                                        Width="120"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Right"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="120" VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel />
+                                <StackPanel Height="25" Orientation="Horizontal">
+                                    <StackPanel
+                                        Width="120"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Right"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="120" VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel />
+                                <StackPanel
+                                    Height="25"
+                                    Margin="0,0,0,12"
+                                    Orientation="Horizontal">
+                                    <StackPanel
+                                        Width="120"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Right"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Right"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="45" VerticalAlignment="Center">
+                                        <TextBlock
+                                            Margin="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            Tag="price" />
+                                    </StackPanel>
+                                    <StackPanel Width="120" VerticalAlignment="Center">
+                                        <Button
+                                            Height="15"
+                                            Padding="4,0,4,0"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                            Content=""
+                                            FontSize="14"
+                                            Style="{DynamicResource MaterialDesignRaisedButton}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel />
+                            </StackPanel>
+
+                            <StackPanel Height="35" Orientation="Horizontal">
+                                <CheckBox
+                                    x:Name="ConfirmCheckbox"
+                                    Content="我了解交易風險，並確定送出此委託單。"
+                                    IsChecked="False"
+                                    IsThreeState="False" />
+                            </StackPanel>
+
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                <Button
+                                    Margin="0,16,-8,-8"
+                                    Click="CancelCommClick"
+                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                    Content="取消"
+                                    IsCancel="True"
+                                    IsDefault="True"
+                                    Style="{StaticResource MaterialDesignFlatButton}">
+                                    <Button.CommandParameter>
+                                        <system:Boolean xmlns:system="clr-namespace:System;assembly=mscorlib">
+                                            False
+                                        </system:Boolean>
+                                    </Button.CommandParameter>
+                                </Button>
+                                <Button
+                                    Margin="0,16,-8,-8"
+                                    Click="AddCommClick"
+                                    Content="確定"
+                                    IsCancel="False"
+                                    Style="{StaticResource MaterialDesignFlatButton}">
+                                    <Button.CommandParameter>
+                                        <system:Boolean xmlns:system="clr-namespace:System;assembly=mscorlib">
+                                            False
+                                        </system:Boolean>
+                                    </Button.CommandParameter>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+            </materialDesign:DialogHost.DialogContent>
+        </materialDesign:DialogHost>
+
+        <materialDesign:DialogHost x:Name="ListDialog" DialogTheme="Inherit">
+            <materialDesign:DialogHost.DialogContent>
+                <StackPanel Margin="16">
+                    <TextBlock
+                        x:Name="ListDialogText"
+                        Width="270"
+                        Height="30"
+                        Text=""
+                        TextWrapping="Wrap" />
+
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button
+                            Margin="0,16,-8,-8"
+                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                            Content="確定"
+                            IsCancel="True"
+                            Style="{StaticResource MaterialDesignFlatButton}">
+                            <Button.CommandParameter>
+                                <system:Boolean xmlns:system="clr-namespace:System;assembly=mscorlib">
+                                    False
+                                </system:Boolean>
+                            </Button.CommandParameter>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </materialDesign:DialogHost.DialogContent>
+        </materialDesign:DialogHost>
+
+    </Grid>
+</UserControl>
